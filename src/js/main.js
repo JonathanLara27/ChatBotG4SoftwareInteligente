@@ -26,8 +26,15 @@ async function createMessage(message) {
     div.appendChild(p);
     // agregamos el elemento al div con id messages
     document.getElementById("chat").appendChild(div);
+    //creamos una animación para simular que el bot esta escribiendo
+    const p1 = document.createElement("p");
+    p1.innerHTML = '<strong>ChatGPT:</strong> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...';
+    p1.classList.add("text-white", "bg-primary", "rounded-2", "p-2");
+    div.appendChild(p1);
     //llamamos a la funcion para obtener la respuesta
     const res = await chatGPT(message);
+    //quitamos la animación
+    div.removeChild(p1);
     const p2 = document.createElement("p");
     (res.error) ? p2.innerHTML = '<strong>ChatGPT:</strong> ' + JSON.stringify(res.error.message)
         : p2.innerHTML = '<strong>ChatGPT:</strong> ' + JSON.stringify(res.choices[0].message.content);
@@ -57,8 +64,8 @@ async function chatGPT(message) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer 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",
-            "OpenAI-Organization": "org-nDfOpJ9y8SZEoc2dYwQw9Zhy"
+            "Authorization": "Bearer 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",
+            "OpenAI-Organization": "org-HeswipgtHVXT7VNBA16QCDkc"
         },
         body: JSON.stringify(enviar),
     };
