@@ -11,7 +11,7 @@ function getInputValue() {
 }
 
 //funcion para crear el mensaje
-function createMessage(message) {
+async function createMessage(message) {
     //creamos el elemento div
     const div = document.createElement("div");
     //le agregamos la clase message
@@ -20,10 +20,19 @@ function createMessage(message) {
     const p = document.createElement("p");
     //le agregamos el texto del mensaje
     p.innerHTML = '<strong>Tú:</strong> ' + message;
+    //añadimos clases de bootstrap para dar estilos
+    p.classList.add("text-white", "bg-secondary", "rounded-2", "p-2");
     //agregamos el elemento p al div
     div.appendChild(p);
     // agregamos el elemento al div con id messages
     document.getElementById("chat").appendChild(div);
+    //llamamos a la funcion para obtener la respuesta
+    const res = await chatGPT(message);
+    const p2 = document.createElement("p");
+    (res.error) ? p2.innerHTML = '<strong>ChatGPT:</strong> ' + JSON.stringify(res.error.message)
+        : p2.innerHTML = '<strong>ChatGPT:</strong> ' + JSON.stringify(res.choices[0].message.content);
+    p2.classList.add("text-white", "bg-primary", "rounded-2", "p-2");
+    div.appendChild(p2);
 }
 
 //tenemos el form message-form
@@ -35,3 +44,32 @@ form.addEventListener("submit", (e) => {
     //obtenemos el valor del input
     getInputValue();
 });
+
+//funcion para consumir api de chatgpt
+async function chatGPT(message) {
+    const enviar = {
+        "model": "gpt-3.5-turbo",
+        "messages": JSON.stringify([{ "role": "user", "content": message }]),
+        "temperature": 0.7
+    }
+    //creamos el objeto de configuracion
+    const config = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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",
+            "OpenAI-Organization": "org-nDfOpJ9y8SZEoc2dYwQw9Zhy"
+        },
+        body: JSON.stringify(enviar),
+    };
+    //consumimos la api
+    const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        config
+    );
+    //obtenemos la respuesta en json
+    const data = await response.json();
+    //retornamos la respuesta
+    return data;
+}
+
